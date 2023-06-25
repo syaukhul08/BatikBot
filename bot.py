@@ -22,7 +22,7 @@ def send_help_message(msg):
 
 @bot.message_handler(commands=["help"])
 def send_help_message(msg):
-    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies Motif Batik Kawung, Motif Batik Lasem, Motif Batik Parang, Motif Batik Mega Mendung, Motif Batik Sekar Jagad")
+    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad")
     
 @bot.message_handler(content_types=["sticker"])
 def send_sticker_message(msg):
@@ -47,64 +47,12 @@ labels = []
 network_input_size = 0
 
 
-def _predict_image(image):
-    try:
-        if image.mode != "RGB":
-            _log_msg("Converting to RGB")
-            image.convert("RGB")
+def classify_image(image):
+    
+    _initialize()
+    
+    return _predict_image(image) 
 
-        w,h = image.size
-        _log_msg("Image size: " + str(w) + "x" + str(h))
-        
-        # Update orientation based on EXIF tags
-        image = _update_orientation(image)
-
-        # If the image has either w or h greater than 1600 we resize it down respecting
-        # aspect ratio such that the largest dimention is 1600
-        image = _resize_down_to_1600_max_dim(image)
-
-        # Convert image to numpy array
-        image = _convert_to_nparray(image)
-        
-        # Crop the center square and resize that square down to 256x256
-        resized_image = _extract_and_resize_to_224_square(image)
-
-        # Crop the center for the specified network_input_Size
-        cropped_image = _crop_center(resized_image, network_input_size, network_input_size)
-
-        _initialize()
-
-        tf.compat.v1.reset_default_graph()
-        tf.import_graph_def(graph_def, name='')
-
-        with tf.compat.v1.Session() as sess:
-            prob_tensor = sess.graph.get_tensor_by_name(output_layer)
-            predictions, = sess.run(prob_tensor, {input_node: [cropped_image] })
-            
-            result = []
-            highest_prediction = None
-            for p, label in zip(predictions, labels):
-                truncated_probablity = np.float64(round(p,8))
-                if truncated_probablity > 1e-8:
-                    prediction = {
-                        'tagName': label,
-                        'probability': truncated_probablity }
-                    result.append(prediction)
-                    if not highest_prediction or prediction['probability'] > highest_prediction['probability']:
-                        highest_prediction = prediction
-
-            response = {
-                'created': datetime.utcnow().isoformat(),
-                'predictedTagName': highest_prediction['tagName'],
-                'prediction': result 
-            }
-
-            _log_msg("Results: " + str(response))
-            return response
-            
-    except Exception as e:
-        _log_msg(str(e))
-        return 'Error: Could not preprocess image for prediction. ' + str(e)
 
 @bot.message_handler(content_types=['photo'])
 def handle_image(msg):
@@ -117,9 +65,9 @@ def handle_image(msg):
     downloaded_file = bot.download_file(file_path)
 
     # Melakukan klasifikasi gambar
-    predicted_label = _predict_image(downloaded_file)
+    predicted_label = classify_image(downloaded_file)
 
     # Mengirim hasil klasifikasi ke pengguna
-    bot.reply_to(msg, f"Predicted label: {predicted_label}")
+    bot.reply_to(msg, f"The image classified as a Motif Batik : \n{predicted_label}")
 
 bot.polling()

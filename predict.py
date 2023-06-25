@@ -1,6 +1,8 @@
 from datetime import datetime
+import io
 import logging
 import os
+from tkinter import image_types
 
 from urllib.request import urlopen
 from PIL import Image
@@ -149,6 +151,9 @@ def _update_orientation(image):
                 
 def _predict_image(image):
     try:
+         # Load image from bytes
+        image = Image.open(io.BytesIO(image))
+        
         if image.mode != "RGB":
             _log_msg("Converting to RGB")
             image.convert("RGB")
@@ -172,8 +177,6 @@ def _predict_image(image):
         # Crop the center for the specified network_input_Size
         cropped_image = _crop_center(resized_image, network_input_size, network_input_size)
 
-        _initialize()
-
         tf.compat.v1.reset_default_graph()
         tf.import_graph_def(graph_def, name='')
 
@@ -194,9 +197,7 @@ def _predict_image(image):
                         highest_prediction = prediction
 
             response = {
-                'created': datetime.utcnow().isoformat(),
-                'predictedTagName': highest_prediction['tagName'],
-                'prediction': result 
+                'prediction': [highest_prediction] 
             }
 
             _log_msg("Results: " + str(response))
