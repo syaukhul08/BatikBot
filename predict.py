@@ -191,7 +191,7 @@ def _predict_image(image):
                 if truncated_probablity > 1e-8:
                     prediction = {
                         'tagName': label,
-                        'probability': truncated_probablity }
+                        'probability': f"{truncated_probablity * 100:.2f}%" }
                     result.append(prediction)
                     if not highest_prediction or prediction['probability'] > highest_prediction['probability']:
                         highest_prediction = prediction
@@ -201,7 +201,14 @@ def _predict_image(image):
             }
 
             _log_msg("Results: " + str(response))
-            return response
+            probability_str = highest_prediction['probability']
+            probability_value = float(probability_str.rstrip('%')) / 100.0
+
+            if highest_prediction and probability_value >= 0.9:
+                return response
+            else:
+                return "sorry motif can't be classified. click /help for more info"
+            
             
     except Exception as e:
         _log_msg(str(e))

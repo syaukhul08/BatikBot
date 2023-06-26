@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 import tensorflow as tf
 from PIL import Image
 import telebot
-from predict import _convert_to_nparray, _crop_center, _extract_and_resize_to_224_square, _initialize, _log_msg, _resize_down_to_1600_max_dim, _update_orientation
-from predict import _predict_image
-from predict import *
+from predict import _predict_image, _initialize
 
 
 # Load token from .env file
@@ -22,7 +20,7 @@ def send_help_message(msg):
 
 @bot.message_handler(commands=["help"])
 def send_help_message(msg):
-    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad")
+    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad\n\n can classify motifs with an accuracy level of >= 90%")
     
 @bot.message_handler(content_types=["sticker"])
 def send_sticker_message(msg):
