@@ -190,14 +190,14 @@ def _predict_image(image):
                 truncated_probablity = np.float64(round(p,8))
                 if truncated_probablity > 1e-8:
                     prediction = {
-                        'tagName': label,
+                        'motif': label,
                         'probability': f"{truncated_probablity * 100:.2f}%" }
                     result.append(prediction)
                     if not highest_prediction or prediction['probability'] > highest_prediction['probability']:
                         highest_prediction = prediction
 
             response = {
-                'prediction': [highest_prediction] 
+                'classification': highest_prediction
             }
 
             _log_msg("Results: " + str(response))
@@ -205,20 +205,11 @@ def _predict_image(image):
             probability_value = float(probability_str.rstrip('%')) / 100.0
 
             if highest_prediction and probability_value >= 0.9:
-                return response
+                return f"Motif: {response['classification']['motif']}\nProbability: {response['classification']['probability']}"
             else:
-                return "sorry motif can't be classified. click /help for more info"
+                return "Sorry motif can't be classified. Click /help for more info"
             
             
     except Exception as e:
         _log_msg(str(e))
         return 'Error: Could not preprocess image for prediction. ' + str(e)
-
-def predict_image_from_url(image_url):
-    logging.info("Predicting from url: " + image_url)
-
-    _initialize()
-
-    with urlopen(image_url) as testImage:
-        image = Image.open(testImage)
-        return _predict_image(image)

@@ -20,7 +20,7 @@ def send_help_message(msg):
 
 @bot.message_handler(commands=["help"])
 def send_help_message(msg):
-    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad\n\n can classify motifs with an accuracy level of >= 90%")
+    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad\n\nCan classify motifs with an accuracy level of >= 90%")
     
 @bot.message_handler(content_types=["sticker"])
 def send_sticker_message(msg):
@@ -29,21 +29,7 @@ def send_sticker_message(msg):
 @bot.message_handler(content_types=["text"])
 def send_emoticon_message(msg):
     bot.send_message(chat_id=msg.chat.id, text="Sorry, i can't response your text")
-
-
-scriptpath = os.path.abspath(__file__)
-scriptdir = os.path.dirname(scriptpath)
-filename = os.path.join(scriptdir, 'model/model.pb')
-labels_filename = os.path.join(scriptdir, 'model/labels.txt')
-
-
-output_layer = 'loss:0'
-input_node = 'Placeholder:0'
-
-graph_def = tf.compat.v1.GraphDef()
-labels = []
-network_input_size = 0
-
+    
 
 def classify_image(image):
     
