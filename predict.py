@@ -103,7 +103,7 @@ def _extract_and_resize(img, targetSize):
 
 def _extract_and_resize_to_224_square(image):
     h, w = image.shape[:2]
-    _log_msg("extract_and_resize_to_256_square: " + str(w) + "x" + str(h) +" and resize to " + str(224) + "x" + str(224))
+    _log_msg("extract_and_resize_to_224_square: " + str(w) + "x" + str(h) +" and resize to " + str(224) + "x" + str(224))
     return _extract_and_resize(image, (224, 224))
 
 def _crop_center(img,cropx,cropy):
@@ -171,7 +171,7 @@ def _predict_image(image):
         # Convert image to numpy array
         image = _convert_to_nparray(image)
         
-        # Crop the center square and resize that square down to 256x256
+        # Crop the center square and resize that square down to 224x224
         resized_image = _extract_and_resize_to_224_square(image)
 
         # Crop the center for the specified network_input_Size
