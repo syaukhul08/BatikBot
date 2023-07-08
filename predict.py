@@ -2,9 +2,6 @@ from datetime import datetime
 import io
 import logging
 import os
-from tkinter import image_types
-
-from urllib.request import urlopen
 from PIL import Image
 import tensorflow as tf
 import numpy as np
