@@ -194,19 +194,20 @@ def _predict_image(image):
                         highest_prediction = prediction
 
             response = {
-                'classification': highest_prediction
+                'classification': result,
+                'highest_score': highest_prediction['motif'],
             }
-
-            _log_msg("Results: " + str(response))
-            probability_str = highest_prediction['probability']
-            probability_value = float(probability_str.rstrip('%')) / 100.0
-
-            if highest_prediction and probability_value >= 0.9:
-                return f"Motif: {response['classification']['motif']}\nProbability: {response['classification']['probability']}"
-            else:
-                return "Sorry motif can't be classified. Click /help for more info"
             
+            output = "The image classified as a Motif Batik : \n"
+
+            for pred in response['classification']:
+                output += "Motif: " + pred['motif'] + ", "
+                output += "Probability: " + pred['probability'] + "\n"
             
+            output += "\n\nHighest Score: " + response['highest_score']
+
+            return output
+        
     except Exception as e:
         _log_msg(str(e))
         return 'Error: Could not preprocess image for prediction. ' + str(e)

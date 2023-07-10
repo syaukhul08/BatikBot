@@ -20,7 +20,7 @@ def send_help_message(msg):
 
 @bot.message_handler(commands=["help"])
 def send_help_message(msg):
-    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n - Motif Batik Sekar Jagad\n\nCan classify motifs with an accuracy level of >= 90%")
+    bot.send_message(chat_id=msg.chat.id, text="This bot can classifies\n - Motif Batik Kawung,\n - Motif Batik Lasem,\n - Motif Batik Parang,\n - Motif Batik Mega Mendung,\n")
     
 @bot.message_handler(content_types=["sticker"])
 def send_sticker_message(msg):
@@ -52,6 +52,6 @@ def handle_image(msg):
     predicted_label = classify_image(downloaded_file)
 
     # Mengirim hasil klasifikasi ke pengguna
-    bot.reply_to(msg, f"The image classified as a Motif Batik : \n{predicted_label}")
+    bot.reply_to(msg, predicted_label)
 
 bot.polling()
