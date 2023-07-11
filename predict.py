@@ -184,13 +184,13 @@ def _predict_image(image):
             result = []
             highest_prediction = None
             for p, label in zip(predictions, labels):
-                truncated_probablity = np.float64(round(p,8))
+                truncated_probablity = np.float64(round(p * 100, 2))
                 if truncated_probablity > 1e-8:
                     prediction = {
                         'motif': label,
-                        'probability': f"{truncated_probablity * 100:.2f}%" }
+                        'probability': f"{truncated_probablity:.2f}%" }
                     result.append(prediction)
-                    if not highest_prediction or prediction['probability'] > highest_prediction['probability']:
+                    if not highest_prediction or truncated_probablity > float(highest_prediction['probability'][:-1]):
                         highest_prediction = prediction
 
             response = {
@@ -204,7 +204,9 @@ def _predict_image(image):
                 output += "Motif: " + pred['motif'] + ", "
                 output += "Probability: " + pred['probability'] + "\n"
             
-            output += "\n\nHighest Score: " + response['highest_score']
+            output += "\n\nHighest Score: \n"
+            output += "Motif: " + highest_prediction['motif'] + ", "
+            output += "Probability: " + highest_prediction['probability']
 
             return output
         
