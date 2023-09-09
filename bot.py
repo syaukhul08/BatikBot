@@ -14,6 +14,8 @@ TOKEN = os.getenv('BOT_TOKEN')
 
 bot = telebot.TeleBot(TOKEN, parse_mode=None)
 
+
+#bot handler
 @bot.message_handler(commands=["start"])
 def send_help_message(msg):
     bot.send_message(chat_id=msg.chat.id, text="This bot classifies Motif Batik on images. Send a motif batik photo")

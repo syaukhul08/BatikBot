@@ -12,6 +12,11 @@ scriptdir = os.path.dirname(scriptpath)
 filename = os.path.join(scriptdir, 'model/model.pb')
 labels_filename = os.path.join(scriptdir, 'model/labels.txt')
 
+#"loss:0" kemungkinan besar merujuk pada output dari penghitungan kerugian (loss)
+# saat model Anda dinilai atau dievaluasi menggunakan data validasi atau pengujian
+
+# "Placeholder:0" mungkin merujuk pada node yang menerima data gambar atau input lainnya 
+# saat Anda melakukan inferensi atau evaluasi pada model.
 
 output_layer = 'loss:0'
 input_node = 'Placeholder:0'
@@ -35,6 +40,10 @@ def _initialize():
 
 def _log_msg(msg):
     logging.info("{}: {}".format(datetime.now(),msg))
+
+
+#Fungsi ini digunakan dalam operasi perubahan ukuran citra dengan metode interpolasi bilinear, 
+# yang membantu menjaga kualitas visual citra saat perubahan ukuran.
 
 def _extract_bilinear_pixel(img, x, y, ratio, xOrigin, yOrigin):
     xDelta = (x + 0.5) * ratio - 0.5
@@ -78,6 +87,9 @@ def _extract_bilinear_pixel(img, x, y, ratio, xOrigin, yOrigin):
     pixel = yDelta * t + (1. - yDelta) * b
     return pixel.astype(np.uint8)
 
+
+#melakukan perubahan ukuran (resize) pada citra (gambar) menggunakan metode interpolasi bilinear.
+
 def _extract_and_resize(img, targetSize):
     determinant = img.shape[1] * targetSize[0] - img.shape[0] * targetSize[1]
     if determinant < 0:
@@ -98,11 +110,13 @@ def _extract_and_resize(img, targetSize):
             resize_image[y, x] = _extract_bilinear_pixel(img, x, y, ratio, xOrigin, yOrigin)
     return resize_image
 
+
 def _extract_and_resize_to_224_square(image):
     h, w = image.shape[:2]
     _log_msg("extract_and_resize_to_224_square: " + str(w) + "x" + str(h) +" and resize to " + str(224) + "x" + str(224))
     return _extract_and_resize(image, (224, 224))
 
+#mengambil bagian tengah dari citra dengan ukuran yang lebih kecil tanpa mempengaruhi proporsi aslinya.
 def _crop_center(img,cropx,cropy):
     h, w = img.shape[:2]
     startx = max(0, w//2-(cropx//2) - 1)
@@ -178,19 +192,19 @@ def _predict_image(image):
         tf.import_graph_def(graph_def, name='')
 
         with tf.compat.v1.Session() as sess:
-            prob_tensor = sess.graph.get_tensor_by_name(output_layer)
-            predictions, = sess.run(prob_tensor, {input_node: [cropped_image] })
+            prob_tensor = sess.graph.get_tensor_by_name(output_layer) #mengambil tensor output yang sesuai dengan layer akhir jaringan saraf yang akan digunakan untuk prediksi.
+            predictions, = sess.run(prob_tensor, {input_node: [cropped_image] }) #melakukan eksekusi sesi untuk mendapatkan prediksi berdasarkan input gambar yang telah di-crop.
             
             result = []
             highest_prediction = None
             for p, label in zip(predictions, labels):
-                truncated_probablity = np.float64(round(p * 100, 2))
-                if truncated_probablity > 1e-8:
+                truncated_accuracy = np.float64(round(p * 100, 2))
+                if truncated_accuracy > 1e-8:
                     prediction = {
                         'motif': label,
-                        'probability': f"{truncated_probablity:.2f}%" }
+                        'accuracy': f"{truncated_accuracy:.2f}%" }
                     result.append(prediction)
-                    if not highest_prediction or truncated_probablity > float(highest_prediction['probability'][:-1]):
+                    if not highest_prediction or truncated_accuracy > float(highest_prediction['accuracy'][:-1]):
                         highest_prediction = prediction
 
             response = {
@@ -202,11 +216,14 @@ def _predict_image(image):
 
             for pred in response['classification']:
                 output += "Motif: " + pred['motif'] + ", "
-                output += "Probability: " + pred['probability'] + "\n"
+                output += "Accuracy: " + pred['accuracy'] + "\n"
             
             output += "\n\nHighest Score: \n"
             output += "Motif: " + highest_prediction['motif'] + ", "
-            output += "Probability: " + highest_prediction['probability']
+            output += "Accuracy: " + highest_prediction['accuracy']
+
+            if highest_prediction and float(highest_prediction['accuracy'][:-1]) < 50.0:
+                output += "\nHighest prediction is less than or equal to 50%, the result is considered invalid."
 
             return output
         
