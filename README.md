@@ -1,4 +1,4 @@
-![image](https://github.com/syaukhul08/BatikBot/assets/61621568/2f7cbcfd-237a-4ea2-8b0c-302344c04862)# Motif Batik Bot
+Motif Batik Bot
 
 Telegram bot is used to classify Batik motifs. Using an artificial intelligence technology from Microsoft, Azure Custom Vision for the classification.
 Limited to the classification of types of batik motifs:
